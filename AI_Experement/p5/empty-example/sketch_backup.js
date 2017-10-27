@@ -21,7 +21,7 @@ function setup(){
     Entity1.setOther(Entity2);
     Entity2.setOther(Entity1);
 }
-    
+
 function draw(){
 
     background(110);
@@ -74,8 +74,7 @@ class Entity{
     constructor(startingAngle, type){
         this.angle = toRadiuns(startingAngle);
         this.speed = 1;
-        this.type = type;
-        this.brain = new Neuron();
+        this.brain = new Brain(type);
     }
     
     setOther(other)
@@ -99,11 +98,11 @@ class Entity{
     
     update()
     {
-        if(this.type == 0)
-            this.move(random() > 0.2? 1 : 0);
+        if(this.brain.type == 0)
+            this.move(random() > 0.1? 1 : 0);
         else
         {
-            let choice = this.brain.activate(toRadiuns((360 + Math.floor(toDegrees(this.other.angle - this.angle))) % 360)/ (2.0 * Math.PI));
+            let choice = this.brain.network.activate([toRadiuns((360 + Math.floor(toDegrees(this.other.angle - this.angle))) % 360)/ (2.0 * Math.PI) ]);
             console.log(choice);
             this.move(Math.round(choice));
             
@@ -122,7 +121,7 @@ class Entity{
             
             
             if(train && Math.round(choice) != dir)
-                this.brain.propagate(0.001, [dir]);
+                this.brain.network.propagate(0.001, [dir]);
         }			
         
         
@@ -137,4 +136,33 @@ class Entity{
     }
 
 }
-    
+class Brain {
+
+    constructor(type){
+        
+        this.type = type;
+        
+        switch(type){
+            case 1: // smart
+                // create the layers
+                this.inputLayer = new Layer(1);
+                this.outputLayer = new Layer(1);
+
+                // connect the layers
+                this.inputLayer.project(this.outputLayer);
+
+                // set the layers
+                this.network = new Network({
+                    input: this.inputLayer,
+                    output: this.outputLayer
+                });
+            case 0: // stupid
+                
+            break;
+            default:
+            console.log("Error, invalid brain type");
+            break;
+        }
+    }
+
+}
