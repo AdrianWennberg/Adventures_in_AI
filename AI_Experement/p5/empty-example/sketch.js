@@ -16,8 +16,8 @@ let Entity2;
 
 function setup(){
     createCanvas(WorldSize,WorldSize);
-    Entity1 = new Entity(0, 0);
-    Entity2 = new Entity(180, 1);
+    Entity1 = new Entity(0, 1);
+    Entity2 = new Entity(90, 2);
     Entity1.setOther(Entity2);
     Entity2.setOther(Entity1);
 }
@@ -75,7 +75,9 @@ class Entity{
         this.angle = toRadiuns(startingAngle);
         this.speed = 1;
         this.type = type;
-        this.brain = new Neuron();
+        this.brainIN = new Neuron();
+        this.brainOUT = new Neuron();
+        this.brainIN.project(this.brainOUT);
     }
     
     setOther(other)
@@ -99,33 +101,49 @@ class Entity{
     
     update()
     {
-        if(this.type == 0)
-            this.move(random() > 0.2? 1 : 0);
-        else
+        let choice;
+        let dir;
+        
+        let diff = (360 + Math.floor(toDegrees(this.other.angle - this.angle))) % 360;
+        
+        switch(this.type)
         {
-            let choice = this.brain.activate(toRadiuns((360 + Math.floor(toDegrees(this.other.angle - this.angle))) % 360)/ (2.0 * Math.PI));
-            console.log(choice);
+        case 0:
+            this.move(random() > 0.5? 1 : 0);
+            break
+        case 1:
+        
+            this.brainIN.activate(toRadiuns(diff)/ (2.0 * Math.PI));
+            choice = this.brainOUT.activate();
             this.move(Math.round(choice));
             
-            let dir = 0;
-            if(Math.abs(this.other.angle - this.angle) < toRadiuns(180))
-            {
-                if(this.other.angle < this.angle)
-                {
-                    dir = 1;
-                }
-            }
-            else if(this.angle < toRadiuns(180))
+            dir = 0;
+            if(diff > 180)
             {
                 dir = 1;
             }
             
+            if(train)
+                this.brainOUT.propagate(0.3, dir);
+            break;
+        case 2:
             
-            if(train && Math.round(choice) != dir)
-                this.brain.propagate(0.001, [dir]);
-        }			
-        
-        
+            this.brainIN.activate(toRadiuns(diff)/ (2.0 * Math.PI));
+            choice = this.brainOUT.activate();            
+            this.move(Math.round(choice));
+            
+            dir = 0;
+            if(diff < 180)
+            {
+                dir = 1;
+            }
+            
+            if(train)
+                this.brainOUT.propagate(0.3, dir);
+            break;
+        default:
+        break;
+        }
     }
     
     move(Direction){
