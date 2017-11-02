@@ -5,7 +5,7 @@ let WorldSize = 500;
 let BlockRadius = 67;
 let train = false;
 
-var Neuron = synaptic.Neuron,
+let Neuron = synaptic.Neuron,
 Layer = synaptic.Layer,
 Network = synaptic.Network,
 Trainer = synaptic.Trainer,
@@ -14,10 +14,21 @@ Architect = synaptic.Architect;
 let Entity1;
 let Entity2;
 
+function loaded() {
+
+    let train = document.createElement("BUTTON");
+    let t = document.createTextNode("Train"); 
+    train.appendChild(t);
+    train.onclick = toggleTraining;
+    document.body.appendChild(document.createElement("br"));
+    document.body.appendChild(train);
+    console.log("a");
+}
+
 function setup(){
     createCanvas(WorldSize,WorldSize);
-    Entity1 = new Entity(0, 1);
-    Entity2 = new Entity(90, 2);
+    Entity1 = new Entity(0, 0);
+    Entity2 = new Entity(90, 1);
     Entity1.setOther(Entity2);
     Entity2.setOther(Entity1);
 }
@@ -47,7 +58,7 @@ function draw(){
     
 }
 
-function mousePressed()
+function toggleTraining()
 {
     train = !train;
 }
